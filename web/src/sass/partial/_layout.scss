@@ -1,0 +1,97 @@
+header {
+    margin: 0;
+    position: fixed;
+    height: 3em;
+    background: $header-bg;
+    width: 100%;
+    top: 0;
+    padding: 0;
+    nav {
+        display: block;
+        position: absolute;
+        right: 0;
+        top: 0;
+        ul {
+            display: inline;
+            li {
+                display: inline-block;
+                border-left: 1px solid $bg;
+                position: relative;
+                @include transition(all 0.2s);
+                cursor: pointer;
+                border: 1px solid #F0F;
+                i {
+                    width: 3em;
+                    height: 3em;
+                    text-indent: -666em;
+                    display: inline-block;
+                }
+                :hover {
+                    ~ul {
+                        display: block;
+                    }
+                }
+                ul {
+                    display: none;
+                    position: absolute;
+                    right: 0;
+                    top: 3em;
+                    border-top: 1px solid $bg;
+                    background: $header-bg;
+                    @include transition(transform 0.2s ease-in 0.2s, opacity 0.2s ease);
+                }
+            }
+        }
+    }
+}
+
+#genesis {
+    $blockSize: 5;
+    display: block;
+    width: 515px*$blockSize;
+    height: (400px*$blockSize);
+    margin: 5em 0 0 0;
+}
+
+#genesis {
+    * {
+        /*shape-rendering: crispEdges;*/
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: $axis-line-colour;
+        shape-rendering: crispEdges;
+    }
+    .tick text {
+        font-family: $axis-font-family;
+        fill: $axis-font-colour;
+        font-size: $axis-font-size;
+    }
+    text.label {
+        font-family: $axis-label-font-family;
+        fill: $axis-label-font-colour;
+        font-size: $axis-label-font-size;
+        letter-spacing: 1px;
+    }
+    path.domain {
+        stroke: $axis-font-colour;
+        stroke-width: 1;
+    }
+    .tooltip {
+        position: absolute;
+        font-size: 1.4em;
+        pointer-events: none;
+        padding: 1em 1em;
+        font-family: 'Roboto', Arial, Verdana, sans-serif;
+        font-size: 11px;
+        color: $bg;
+        width: 260px;
+    }
+    .tooltip-table td {
+        vertical-align: top;
+    }
+    .tooltip-table td:nth-child(even) {
+        padding-left: 1em;
+    }
+}

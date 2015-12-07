@@ -1,0 +1,10 @@
+{
+	"buildPath": "build",
+	"srcPath": "src",
+	"dev": {
+		"url": "http://struct.com.au/genesis",
+		"ftpPath": "/httpdocs/genesis",
+		"ftpHost": "struct.com.au",
+		"ftpPort": 21
+	}
+}

@@ -1,0 +1,100 @@
+$axis-font-family: Geneva,
+sans-serif;
+$axis-font-size: 0.5em;
+$axis-label-font-family: 'Bebas Neue Book',
+Arial,
+Helvetica,
+sans-serif;
+$axis-label-font-size: 1.3em;
+@font-face {
+    font-family: 'Bebas Neue Bold';
+    src: url('../fonts/BebasNeue Bold.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/BebasNeue Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/BebasNeue Bold.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/BebasNeue Bold.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/BebasNeue Bold.svg#4ee7cf2c44cbe4dfc2ada91760f0e6e2') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Book';
+    src: url('../fonts/BebasNeue Book.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/BebasNeue Book.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/BebasNeue Book.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/BebasNeue Book.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/BebasNeue Book.svg#58f27deb2399af8565c14afe8476e0de') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Light';
+    src: url('../fonts/BebasNeue Light.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/BebasNeue Light.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/BebasNeue Light.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/BebasNeue Light.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/BebasNeue Light.svg#03d659cf832839da14ddaf6756d18c45') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Regular';
+    src: url('../fonts/BebasNeue Regular.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/BebasNeue Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/BebasNeue Regular.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/BebasNeue Regular.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/BebasNeue Regular.svg#3166c81ac2dcbbc5ab3c7185cfcd2ecc') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Thin';
+    src: url('../fonts/BebasNeue Thin.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/BebasNeue Thin.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/BebasNeue Thin.woff') format('woff'), /* Modern Browsers */
+    url('../fonts/BebasNeue Thin.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/BebasNeue Thin.svg#268ad9afa81838d88e118a781aa59bc3') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 200;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: $base-font-family;
+    line-height: $base-line-height;
+    color: $heading-colour;
+    font-family: 'Bebas Neue Light', sans-serif;
+    font-weight: 200;
+    font-size: 2em;
+}
+
+h1 {
+    font-size: 2.25em;
+    margin: 0 0 0 0;
+    line-height: 1.6em;
+    text-indent: 1em;
+}
+
+p {
+    font-family: 'Martel', serif;
+    font-weight: 400;
+    text-align: center;
+    font-size: 0.8em;
+}

@@ -1,0 +1,64 @@
+@font-face {
+    font-family: 'Bebas Neue Bold';
+    src: url('BebasNeue Bold.eot');
+    /* IE9 Compat Modes */
+    src: url('BebasNeue Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('BebasNeue Bold.woff') format('woff'), /* Modern Browsers */
+    url('BebasNeue Bold.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('BebasNeue Bold.svg#4ee7cf2c44cbe4dfc2ada91760f0e6e2') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Book';
+    src: url('BebasNeue Book.eot');
+    /* IE9 Compat Modes */
+    src: url('BebasNeue Book.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('BebasNeue Book.woff') format('woff'), /* Modern Browsers */
+    url('BebasNeue Book.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('BebasNeue Book.svg#58f27deb2399af8565c14afe8476e0de') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Light';
+    src: url('BebasNeue Light.eot');
+    /* IE9 Compat Modes */
+    src: url('BebasNeue Light.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('BebasNeue Light.woff') format('woff'), /* Modern Browsers */
+    url('BebasNeue Light.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('BebasNeue Light.svg#03d659cf832839da14ddaf6756d18c45') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Regular';
+    src: url('BebasNeue Regular.eot');
+    /* IE9 Compat Modes */
+    src: url('BebasNeue Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('BebasNeue Regular.woff') format('woff'), /* Modern Browsers */
+    url('BebasNeue Regular.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('BebasNeue Regular.svg#3166c81ac2dcbbc5ab3c7185cfcd2ecc') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Bebas Neue Thin';
+    src: url('BebasNeue Thin.eot');
+    /* IE9 Compat Modes */
+    src: url('BebasNeue Thin.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('BebasNeue Thin.woff') format('woff'), /* Modern Browsers */
+    url('BebasNeue Thin.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('BebasNeue Thin.svg#268ad9afa81838d88e118a781aa59bc3') format('svg');
+    /* Legacy iOS */
+    font-style: normal;
+    font-weight: 200;
+}

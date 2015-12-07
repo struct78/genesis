@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": ";;;;AAEA,IAAK;EACD,WAAW,ECHI,kCAEP;EDER,WAAW,ECDI,KAAK;EDEpB,UAAU,EEHT,OAAY;EFIb,KAAK,EEEK,OAAO;;AFCrB;;MAEO;EACH,KAAK,EAAE,IAAI;EACX,OAAO,EAAE,GAAG;EACZ,UAAU,EAAE,UAAU;EACtB,OAAO,EAAE,IAAI;EACb,MAAM,EAAE,MAAM",
+"sources": ["../sass/critical.scss","../sass/vars/_base.scss","../sass/vars/_colours.scss"],
+"names": [],
+"file": "critical.css"
+}
