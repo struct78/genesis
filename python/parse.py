@@ -9,6 +9,7 @@ from operator import itemgetter
 from collections import Counter, defaultdict
 from lxml import etree
 
+alpha_numeric = ['1','2','3','4','5','6','7','8','9','0','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 downloads = './data'
 parsed_folder = './parsed'
 web_folder = '../web/src/data/'
@@ -41,37 +42,42 @@ def get_type(date):
 
 def main():
 	global words
-	for base_folder, _, files in os.walk(downloads):
-		for f in files:
-			word = os.path.join(base_folder, f)
-			filename, extension = os.path.splitext(word)
+	for letter in alpha_numeric:
+		for base_folder, _, files in os.walk(os.path.join(downloads, letter.upper())):
+			for f in files:
+				word = os.path.join(base_folder, f)
+				filename, extension = os.path.splitext(word)
 
-			if (extension == '.xml'):
-				parser = etree.XMLParser(recover=True)
-				tree = ET.parse(word, parser=parser)
-				root = tree.getroot()
+				if (extension == '.xml'):
+					try:
+						parser = etree.XMLParser(recover=True)
+						tree = ET.parse(word, parser=parser)
+						root = tree.getroot()
 
-				print("Opening " + word)
-				if root.find('entry/def/date') is not None:
-					shutil.copyfile(word, os.path.join(parsed_folder, f))
-				
-					for entry in root.findall('entry'):
-						for definition in entry.findall('def'):
-							if (definition.findall('date')):
-								parent = os.path.basename(f)
-								parent = os.path.splitext(parent)[0]
-								id = entry.get('id')
-								full_word = entry.find('ew').text
-								orig_date = definition.find('date').text
-								normalised_date = normalise(orig_date)
-								date_type = get_type(orig_date)
-								word_type = None
+						if root.find('entry/def/date') is not None:
+							shutil.copyfile(word, os.path.join(parsed_folder, filename[0].upper(), f))
+						
+							for entry in root.findall('entry'):
+								for definition in entry.findall('def'):
+									if (definition.findall('date')):
+										parent = os.path.basename(f)
+										parent = os.path.splitext(parent)[0]
+										id = entry.get('id')
+										full_word = entry.find('ew').text
+										orig_date = definition.find('date').text
+										normalised_date = normalise(orig_date)
+										date_type = get_type(orig_date)
+										word_type = None
 
-								if (entry.findall('fl')):
-									word_type = entry.find('fl').text
+										if (entry.findall('fl')):
+											word_type = entry.find('fl').text
 
-								row = [id, full_word, parent, normalised_date, date_type, word_type]
-								words.append(row)
+										row = [id, full_word, parent, normalised_date, date_type, word_type]
+										words.append(row)
+					except:
+						print "Failed on " + word
+
+		print "Finished " + letter
 
 	words = sorted([list(tup) for tup in set([tuple(row) for row in words])], key = itemgetter(3, 5, 1))
 
