@@ -10,8 +10,7 @@ from collections import Counter, defaultdict
 from lxml import etree
 
 downloads = './data'
-parsed = './parsed'
-csv_folder = './csv'
+parsed_folder = './parsed'
 web_folder = '../web/src/data/'
 
 date_formats = (
@@ -54,7 +53,7 @@ def main():
 
 				print("Opening " + word)
 				if root.find('entry/def/date') is not None:
-					shutil.copyfile(word, os.path.join(parsed, f))
+					shutil.copyfile(word, os.path.join(parsed_folder, f))
 				
 					for entry in root.findall('entry'):
 						for definition in entry.findall('def'):
