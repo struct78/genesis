@@ -46,10 +46,10 @@ header {
 }
 
 #genesis {
-    $blockSize: 5;
+    $blockSize: 4;
     display: block;
-    width: 515px*$blockSize;
-    height: (400px*$blockSize);
+    width: 500px*$blockSize;
+    height: (150px*$blockSize);
     margin: 5em 0 0 0;
 }
 

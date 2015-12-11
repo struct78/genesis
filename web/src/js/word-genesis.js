@@ -6,7 +6,9 @@ function Genesis(container) {
     this.svg = {};
     this.tooltip = {};
     this.data = {};
-    this.defaultData = {};
+    this.defaults = {
+        data: {}
+    };
     this.transitionTime = 1000;
     this.nice = false;
     this.extents = {
@@ -62,8 +64,8 @@ Genesis.prototype = {
             } else {
                 // Temporary
                 data = data.filter(function(d) {
-                    return d.year > 1950;
-                    //return d.year > 1500 && d.word.length>10;
+                    //return d.year > 1950;
+                    return d.year > 1500;
                 });
 
                 data = data.sort(function(a, b) {
@@ -73,11 +75,18 @@ Genesis.prototype = {
                 });
 
                 var nest = d3.nest()
-                    .key(function(d) { return d.year; })
+                    .key(function(d) {
+                        return d.year;
+                    })
                     .entries(data);
 
+                nest.forEach(function(d,i) {
+                    d.values.forEach(function(a,b) {
+                        a.index = +b+1;
+                    });
+                });
 
-                parent.data = parent.defaultData = nest;
+                parent.data = parent.defaults.data = nest;
                 parent.createAxes();
                 parent.buildChart();
             }
@@ -89,10 +98,10 @@ Genesis.prototype = {
 
         // X AXIS
         this.values.x = function(d) {
-            return d.key;
+            return +d.key;
         };
         this.extents.x = d3.extent(this.data, this.values.x);
-        this.scale.x = d3.scale.linear().domain([this.extents.x[0], 2015]).rangeRound([0, this.width]);
+        this.scale.x = d3.scale.linear().domain([this.extents.x[0], 2015]).range([0, this.width]);
 
         if (this.nice) {
             this.scale.x = this.scale.x.nice();
@@ -107,17 +116,13 @@ Genesis.prototype = {
 
 
         // Y AXIS
-        var max = d3.max(this.data, function(d) {
-            return d.values.length;
-        });
         this.values.y = function(d) {
-            return d.values;
+            return d.index;
         };
 
-        this.extents.y = [0, max + 1];
-        this.scale.y = d3.scale.linear().domain(this.extents.y).rangeRound([0, this.height]);
+        this.extents.y =  d3.extent(this.data, function(d) { return d.values.length; });
+        this.scale.y = d3.scale.linear().domain(this.extents.y).range([0, this.height]);
         this.map.y = function(d) {
-            console.log(d);
             return parent.scale.y(parent.values.y(d));
         };
         this.axis.y = d3.svg.axis().scale(this.scale.y).orient("left").ticks(10).tickSize(3);
@@ -134,36 +139,45 @@ Genesis.prototype = {
             .attr("y", '0.27em')
             .attr("x", '2.5em')
             .attr("transform", "rotate(-90)");
-/*
-        this.svg
-            .selectAll(".y .tick text")
-            .attr("dx", '2.2em')
-            .attr("dy", '1.1em')
-            .attr("text-anchor", "start")
-            .attr("transform", "rotate(-90)");
+        /*
+                this.svg
+                    .selectAll(".y .tick text")
+                    .attr("dx", '2.2em')
+                    .attr("dy", '1.1em')
+                    .attr("text-anchor", "start")
+                    .attr("transform", "rotate(-90)");
 
-        // y-axis
-        
-        this.svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(0,0)")
-            .call(this.axis.y)
-            .append("text")
-            .attr("class", "label")
-            .attr("x", -this.height / 2)
-            .attr("y", -30)
-            .attr("transform", "rotate(-90)")
-            .attr("text-anchor", "middle")
-            .text("Year");*/
-
-        x = d3.scale.ordinal().rangeRoundBands([0, this.width], 0.05);
-        y = d3.scale.ordinal().rangeRoundBands([0, this.height], 0.05);
-        x.domain(this.data.map(this.values.x));
-        y.domain(this.data.map(this.values.y));
-
+                // y-axis
+                
+                this.svg.append("g")
+                    .attr("class", "y axis")
+                    .attr("transform", "translate(0,0)")
+                    .call(this.axis.y)
+                    .append("text")
+                    .attr("class", "label")
+                    .attr("x", -this.height / 2)
+                    .attr("y", -30)
+                    .attr("transform", "rotate(-90)")
+                    .attr("text-anchor", "middle")
+                    .text("Year");*/
     },
 
     buildChart: function() {
+       // x = d3.scale.ordinal().rangeRoundBands([0, this.width], 0.05);
+        //y = d3.scale.ordinal().rangeRoundBands([0, this.height], 0.05);
+        //x.domain(d3.extent(this.data, function(d) { return d.year; }));
+        //y.domain(d3.extent(this.data, function(d) { return d.values.length; }));
+
+        x = d3.scale.ordinal().domain(d3.range(this.extents.x[0], this.extents.x[1])).rangeBands([0, this.width], 0.15);
+       // y = d3.scale.ordinal().domain(this.extents.y).rangeRoundBands([0, this.height], 0);
+        y = d3.scale.ordinal().domain(d3.range(0, this.extents.y[1])).rangeBands([0, this.height], 0.15);
+
+
+        console.log(this.extents.y);
+        console.log(y.domain());
+        console.log(y.rangeBand());
+// TODO ste to array [0, max]?????
+        
         var parent = this;
 
         var years = this.svg
@@ -174,17 +188,15 @@ Genesis.prototype = {
             .enter()
             .append("g")
             .attr("class", "year")
-            .attr("transform", function(d) { return "translate(" + parent.scale.x(d.key) + ",0)"; })
+            .attr("transform", function(d) {
+                return "translate(" + parent.scale.x(d.key) + ", 1)";
+            })
             .attr("x", this.map.x)
-            .attr("y", 1);
-
-        var rectangles = years
+            .attr("y", 1)
             .selectAll(".word")
             .data(function(d) {
                 return d.values;
-            });
-
-        rectangles
+            })
             .enter()
             .append("rect")
             .attr("class", "word")
@@ -193,38 +205,32 @@ Genesis.prototype = {
                 return parent.colour(d.word_type);
             })
             .attr("x", 0)
-            .transition()
-            .delay(function(d,i) {
-                return i*0.75;
-            })
-            .attr("y", this.map.y)
-            .duration(this.transitionTime)
+            .attr("y", parent.map.y)
             .attr("transform", function(d) {
-                return "translate(1,1)"; //" + y.rangeBand() * 1.8 + "
+                return "translate(0,0)"; //" + y.rangeBand() * 1.8 + "
             })
             .attr("width", x.rangeBand())
-            .attr("height", y.rangeBand());
-
-        rectangles.on("mouseover", function(d) {
+            .attr("height", y.rangeBand())
+            .on("mouseover", function(d) {
                 //d3.select(this).transition().duration(900).ease('elastic').attr('r', 10);
                 parent.tooltip.transition()
                     .duration(200)
                     .style("opacity", 0.95);
 
-                var table = 
-                        "<table class=\"tooltip-table\"><tr><td>Word</td>" +
-                        "<td><strong>" + d.parent + "</strong></td></tr>";
+                var table =
+                    "<table class=\"tooltip-table\"><tr><td>Word</td>" +
+                    "<td><strong>" + d.parent + "</strong></td></tr>";
 
-                        if (d.word != d.parent) {
-                            table += "<tr><td>Variation</td>" +
-                            "<td><strong>" + d.word + "</strong></td></tr>";
-                        }
+                if (d.word != d.parent) {
+                    table += "<tr><td>Variation</td>" +
+                        "<td><strong>" + d.word + "</strong></td></tr>";
+                }
 
-                    table += "<tr><td>Year</td>" +
-                        "<td><strong>" + d.year + "</strong></td></tr>" +
-                        "<tr><td>Word Type</td>" +
-                        "<td><strong>" + d.word_type + "</strong></td></tr>" +
-                        "</table>";
+                table += "<tr><td>Year</td>" +
+                    "<td><strong>" + d.year + "</strong></td></tr>" +
+                    "<tr><td>Word Type</td>" +
+                    "<td><strong>" + d.word_type + "</strong></td></tr>" +
+                    "</table>";
 
                 parent.tooltip.html(table)
                     .style("left", (d3.event.pageX) + "px")
@@ -237,8 +243,6 @@ Genesis.prototype = {
                     .duration(200)
                     .style("opacity", 0);
             });
-
-        rectangles.exit().remove();
     },
     shuffle: function(o) {
         for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
@@ -266,8 +270,8 @@ Genesis.prototype = {
 
         rectangles
             .transition()
-            .delay(function(d,i) {
-                return i*0.1;
+            .delay(function(d, i) {
+                return i * 0.1;
             })
             .duration(this.transitionTime)
             .attr("x", function(d) {
@@ -282,14 +286,14 @@ Genesis.prototype = {
 
     },
     filter: function(text) {
-        this.data = this.defaultData.filter(function(d) {
+        this.data = this.defaults.data.filter(function(d) {
             var re = new RegExp(text);
             if (re.exec(d.word)) {
                 return true;
             }
             return false;
         });
-        
+
         this.buildChart();
     }
 };

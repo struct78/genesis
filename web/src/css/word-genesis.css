@@ -471,8 +471,8 @@ header {
 
 #genesis {
   display: block;
-  width: 2575px;
-  height: 2000px;
+  width: 2000px;
+  height: 600px;
   margin: 5em 0 0 0; }
 
 #genesis * {
