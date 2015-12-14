@@ -39,6 +39,7 @@ function Genesis(container) {
         bottom: 0,
         right: 0
     };
+    this.strokeWidth = 1;
 }
 
 Genesis.prototype = {
@@ -67,6 +68,7 @@ Genesis.prototype = {
                     //return d.year > 1950;
                     return d.year > 1500;
                 });
+                console.log("Loaded " + data.length + " entries");
 
                 data = data.sort(function(a, b) {
                     // Sort by Word Type, then Word
@@ -83,6 +85,13 @@ Genesis.prototype = {
                 nest.forEach(function(d,i) {
                     d.values.forEach(function(a,b) {
                         a.index = +b+1;
+                        a.obsolescence = +a.obsolescence;
+                    });
+
+                    d.values.sort(function(a, b) {
+                        // Sort by Word Type, then Word
+                        return d3.ascending(a.word_type, b.word_type);
+                        //return d3.ascending(parent.colour(a), parent.colour(b));
                     });
                 });
 
@@ -101,7 +110,7 @@ Genesis.prototype = {
             return +d.key;
         };
         this.extents.x = d3.extent(this.data, this.values.x);
-        this.scale.x = d3.scale.linear().domain([this.extents.x[0], 2015]).range([0, this.width]);
+        this.scale.x = d3.scale.linear().domain(this.extents.x).range([0, this.width]);
 
         if (this.nice) {
             this.scale.x = this.scale.x.nice();
@@ -120,7 +129,7 @@ Genesis.prototype = {
             return d.index;
         };
 
-        this.extents.y =  d3.extent(this.data, function(d) { return d.values.length; });
+        this.extents.y = [0, d3.max(this.data, function(d) { return d.values.length; })];
         this.scale.y = d3.scale.linear().domain(this.extents.y).range([0, this.height]);
         this.map.y = function(d) {
             return parent.scale.y(parent.values.y(d));
@@ -139,64 +148,36 @@ Genesis.prototype = {
             .attr("y", '0.27em')
             .attr("x", '2.5em')
             .attr("transform", "rotate(-90)");
-        /*
-                this.svg
-                    .selectAll(".y .tick text")
-                    .attr("dx", '2.2em')
-                    .attr("dy", '1.1em')
-                    .attr("text-anchor", "start")
-                    .attr("transform", "rotate(-90)");
-
-                // y-axis
-                
-                this.svg.append("g")
-                    .attr("class", "y axis")
-                    .attr("transform", "translate(0,0)")
-                    .call(this.axis.y)
-                    .append("text")
-                    .attr("class", "label")
-                    .attr("x", -this.height / 2)
-                    .attr("y", -30)
-                    .attr("transform", "rotate(-90)")
-                    .attr("text-anchor", "middle")
-                    .text("Year");*/
     },
 
     buildChart: function() {
-       // x = d3.scale.ordinal().rangeRoundBands([0, this.width], 0.05);
-        //y = d3.scale.ordinal().rangeRoundBands([0, this.height], 0.05);
-        //x.domain(d3.extent(this.data, function(d) { return d.year; }));
-        //y.domain(d3.extent(this.data, function(d) { return d.values.length; }));
-
         x = d3.scale.ordinal().domain(d3.range(this.extents.x[0], this.extents.x[1])).rangeBands([0, this.width], 0.15);
-       // y = d3.scale.ordinal().domain(this.extents.y).rangeRoundBands([0, this.height], 0);
         y = d3.scale.ordinal().domain(d3.range(0, this.extents.y[1])).rangeBands([0, this.height], 0.15);
 
-
-        console.log(this.extents.y);
-        console.log(y.domain());
-        console.log(y.rangeBand());
-// TODO ste to array [0, max]?????
-        
+        //this.colours = this.shuffle(this.colours);
+        console.log("Building chart");
         var parent = this;
 
         var years = this.svg
             .selectAll(".year")
             .data(this.data);
 
-        years
+        var rectangles = years
             .enter()
             .append("g")
             .attr("class", "year")
             .attr("transform", function(d) {
-                return "translate(" + parent.scale.x(d.key) + ", 1)";
+                return "translate(" + parent.scale.x(d.key) + ", 1) scale(1,0)";
             })
             .attr("x", this.map.x)
             .attr("y", 1)
             .selectAll(".word")
             .data(function(d) {
+                console.log(d.values);
                 return d.values;
-            })
+            });
+
+        rectangles
             .enter()
             .append("rect")
             .attr("class", "word")
@@ -243,12 +224,27 @@ Genesis.prototype = {
                     .duration(200)
                     .style("opacity", 0);
             });
+
+        rectangles
+            .exit()
+            .style("height", "0")
+            .remove();
+
+        years.transition()
+            .delay(function(d, i) {
+                return i * 10;
+            })
+            .duration(this.transitionTime) 
+            .attr("transform", function(d) {
+                return "translate(" + parent.scale.x(d.key) + ", 1) scale(1,1)";
+            });
     },
     shuffle: function(o) {
         for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
         return o;
     },
     resize: function(w) {
+        /*
         var parent = this;
 
         this.originalWidth = this.width;
@@ -283,26 +279,37 @@ Genesis.prototype = {
             .transition()
             .duration(this.transitionTime)
             .call(this.axis.x);
-
+    */
     },
     filter: function(text) {
-        this.data = this.defaults.data.filter(function(d) {
-            var re = new RegExp(text);
-            if (re.exec(d.word)) {
-                return true;
-            }
-            return false;
+        var filtered = this.defaults.data;
+
+        filtered.forEach(function(d) {
+            d.values = d.values.filter(function(e) {
+                var re = new RegExp(text);
+                if (re.exec(e.word)) {
+                    return true;
+                }
+                return false;
+            });
         });
 
+        this.data = filtered;
         this.buildChart();
     }
 };
 
+var genesis = new Genesis('#genesis');
+var delay = (function() {
+    var timer = 0;
+    return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
 $(function() {
-    var genesis = new Genesis('#genesis');
-    //genesis.colours = ["#EB3503", "#9C2B9F", "#F7AC23", "#2CA2CE", "#F17013"];
-    //genesis.colours = ["#1BE7FF", "#6EEB83", "#E4FF1A", "#FFB800", "#FF5714"];
-    //genesis.colours = ["#E4FF1A", "#FFF908", "#1BBBFF", "#FF2A20", "#50FF57"];
+    //["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"]
     genesis.colours = ["#676666", "#F3E61E", "#ED217C", "#DAD7CD", "#07A0C3", "#811A68", "#DF320F", "#FF6B35", "#F05AC0", "#26547C", "#7B287D", "#F5EFED"];
     genesis.colours = genesis.shuffle(genesis.colours);
     genesis.legend = '#legend';
@@ -312,12 +319,15 @@ $(function() {
         right: 0,
         bottom: 20
     };
+    genesis.strokeWidth = 1;
     genesis.csv = 'data/words.csv';
     genesis.transitionTime = 1500;
     genesis.init();
 
     $('#search').on('keyup', function() {
         var text = $(this).val();
-        genesis.filter(text);
+        delay(function() {
+            genesis.filter(text);
+        }, 500);
     });
 });
