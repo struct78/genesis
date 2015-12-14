@@ -11,6 +11,13 @@ from collections import Counter, defaultdict
 from lxml import etree
 from multiprocessing import Process, Pool
 
+'''
+
+TODO
+	- Flag archaic/oboslete words using the <sl> and <ssl> elements of each definition
+	- If all elements have archaic/obsolete then flag, otherwise they ight have a definitiont hat is in common use
+'''
+
 time_start = timeit.default_timer()
 
 alpha_numeric = ['1','2','3','4','5','6','7','8','9','0','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -24,7 +31,7 @@ date_formats = (
 	{'exp':r'^(circa\s)(\d{1,4})$','rep':r'\g<2>', 'name':'circa XXXX', 'type':'3'},
 	{'exp':r'^(before\s)(\d{1,2})(th\scentury)$','rep':r'\g<2>00', 'name':'before XXTH century', 'type':'4'})
 
-headers = ['id','word','parent','year','type','word_type']
+headers = ['id','word','parent','year','type','word_type','obsolescence']
 
 def getKey(item):
 	return item[2]
@@ -71,11 +78,20 @@ def process_files(letter):
 									normalised_date = normalise(orig_date)
 									date_type = get_type(orig_date)
 									word_type = None
+									is_obsolete = 0
 
 									if (entry.findall('fl')):
 										word_type = entry.find('fl').text
 
-									row = [id, full_word, parent, normalised_date, date_type, word_type]
+									if (definition.findall('ssl')):
+										if (definition.find('ssl').text=='obsolete'):
+											is_obsolete = 1
+
+									if (definition.findall('sl')):
+										if (definition.find('sl').text=='obsolete'):
+											is_obsolete = 1
+
+									row = [id, full_word, parent, normalised_date, date_type, word_type, is_obsolete]
 									word_list.append(row)
 				except:
 					print "Failed on " + word
