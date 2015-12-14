@@ -49,7 +49,7 @@ header {
     $blockSize: 4;
     display: block;
     width: 500px*$blockSize;
-    height: (150px*$blockSize);
+    height: (200px*$blockSize);
     margin: 5em 0 0 0;
 }
 
@@ -93,5 +93,11 @@ header {
     }
     .tooltip-table td:nth-child(even) {
         padding-left: 1em;
+    }
+
+    /* Words */
+    rect.word {
+        stroke-alignment: inner;
+        stroke-width: 1px;
     }
 }
