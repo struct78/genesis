@@ -248,7 +248,7 @@ module.exports = function(grunt) {
           jQuery: true
         }
       },
-      all: ['<%= settings.srcPath%>/**/*.js', '!<%= settings.srcPath%>/**/*.min.js']
+      all: ['<%= settings.srcPath%>/**/*.js', '!<%= settings.srcPath%>/**/*.min.js', '!<%= settings.srcPath%>/**/d3-tip.js']
     },
     /*
       CLEANEMPTY
