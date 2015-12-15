@@ -49,12 +49,13 @@ Genesis.prototype = {
         this.height = $(this.container).height() - this.margin.top - this.margin.bottom;
         this.legend = d3.select(this.legend);
         this.colour = d3.scale.ordinal().range(this.colours);
-        this.tooltip = d3.select(this.container).append("div").attr("class", "tooltip").style("opacity", 0);
+        this.tooltip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
         this.svg = this.chart.append("svg")
             .attr("width", this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+        this.svg.call(this.tooltip);
         this.load();
     },
     load: function() {
@@ -167,6 +168,8 @@ Genesis.prototype = {
 
         var parent = this;
 
+        this.svg.selectAll("*").remove();
+
         var years = this.svg
             .selectAll(".year")
             .data(this.data);
@@ -200,6 +203,7 @@ Genesis.prototype = {
             })
             .attr("width", x.rangeBand())
             .attr("height", y.rangeBand())
+            /*
             .on("mouseover", function(d) {
                 //d3.select(this).transition().duration(900).ease('elastic').attr('r', 10);
                 parent.tooltip.transition()
@@ -231,7 +235,28 @@ Genesis.prototype = {
                 parent.tooltip.transition()
                     .duration(200)
                     .style("opacity", 0);
-            });
+            });*/
+            .on('mouseover', function(d) {
+                var table =
+                    "<table><tr><td>Word</td>" +
+                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.parent + "</strong></td></tr>";
+
+                if (d.word != d.parent) {
+                    table += "<tr><td>Variation</td>" +
+                        "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.word + "</strong></td></tr>";
+                }
+
+                table += "<tr><td>Year</td>" +
+                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.year + "</strong></td></tr>" +
+                    "<tr><td>Type</td>" +
+                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.word_type + "</strong></td></tr>" +
+                    "</table>";
+
+
+                parent.tooltip.html(table);
+                parent.tooltip.show(d.word);
+            })
+            .on('mouseout', this.tooltip.hide);
 
         rectangles = years
             .selectAll(".word")
