@@ -65,7 +65,9 @@ Genesis.prototype = {
             } else {
                 // Temporary
                 data = data.filter(function(d) {
-                    //return d.year > 1950;
+                    //return d.year > 1950; 
+                    //var re = new RegExp('q');
+                    //return d.year > 1500 && re.exec(d.word);
                     return d.year > 1500;
                 });
                 console.log("Loaded " + data.length + " entries");
@@ -82,60 +84,70 @@ Genesis.prototype = {
                     })
                     .entries(data);
 
-                nest.forEach(function(d,i) {
-                    d.values.forEach(function(a,b) {
-                        a.index = +b+1;
-                        a.obsolescence = +a.obsolescence;
-                    });
-
-                    d.values.sort(function(a, b) {
-                        // Sort by Word Type, then Word
-                        return d3.ascending(a.word_type, b.word_type);
-                        //return d3.ascending(parent.colour(a), parent.colour(b));
-                    });
-                });
-
+                nest = parent.indexSort(nest);
                 parent.data = parent.defaults.data = nest;
                 parent.createAxes();
                 parent.buildChart();
             }
         });
     },
-    createAxes: function() {
-        var parent = this;
+    indexSort: function(nest) {
+        nest.forEach(function(d,i) {
+            d.values.forEach(function(a,b) {
+                a.index = +b+1;
+                a.obsolescence = +a.obsolescence;
+            });
 
+            d.values.sort(function(a, b) {
+                // Sort by Word Type, then Word
+                return d3.ascending(a.word_type, b.word_type);
+                //return d3.ascending(parent.colour(a), parent.colour(b));
+            });
+        });
 
-        // X AXIS
+        return nest;
+    },
+    createValues: function() {
         this.values.x = function(d) {
             return +d.key;
         };
+        this.values.y = function(d) {
+            return d.index;
+        };
+    },
+    createExtents: function() {
         this.extents.x = d3.extent(this.data, this.values.x);
+        this.extents.y = [0, d3.max(this.data, function(d) { return d.values.length; })];
+    },
+    createScale: function() {
         this.scale.x = d3.scale.linear().domain(this.extents.x).range([0, this.width]);
+        this.scale.y = d3.scale.linear().domain(this.extents.y).range([0, this.height]);
 
         if (this.nice) {
             this.scale.x = this.scale.x.nice();
+            this.scale.y = this.scale.y.nice();
         }
+    },
+    createMap: function() {
+        var parent = this;
 
         this.map.x = function(d) {
             return parent.scale.x(parent.values.x(d));
         };
-        this.axis.x = d3.svg.axis().scale(this.scale.x).orient("top").tickFormat(d3.format("d")).ticks(51).tickSize(5);
-
-
-
-
-        // Y AXIS
-        this.values.y = function(d) {
-            return d.index;
-        };
-
-        this.extents.y = [0, d3.max(this.data, function(d) { return d.values.length; })];
-        this.scale.y = d3.scale.linear().domain(this.extents.y).range([0, this.height]);
         this.map.y = function(d) {
             return parent.scale.y(parent.values.y(d));
         };
+    },
+    setup: function() {
+        this.createValues();
+        this.createExtents();
+        this.createScale();
+        this.createMap();
+    },
+    createAxes: function() {
+        this.setup();
+        this.axis.x = d3.svg.axis().scale(this.scale.x).orient("top").tickFormat(d3.format("d")).ticks(51).tickSize(5);
         this.axis.y = d3.svg.axis().scale(this.scale.y).orient("left").ticks(10).tickSize(3);
-
 
         // x-axis
         this.svg.append("g")
@@ -149,13 +161,10 @@ Genesis.prototype = {
             .attr("x", '2.5em')
             .attr("transform", "rotate(-90)");
     },
-
     buildChart: function() {
         x = d3.scale.ordinal().domain(d3.range(this.extents.x[0], this.extents.x[1])).rangeBands([0, this.width], 0.15);
         y = d3.scale.ordinal().domain(d3.range(0, this.extents.y[1])).rangeBands([0, this.height], 0.15);
 
-        //this.colours = this.shuffle(this.colours);
-        console.log("Building chart");
         var parent = this;
 
         var years = this.svg
@@ -173,7 +182,6 @@ Genesis.prototype = {
             .attr("y", 1)
             .selectAll(".word")
             .data(function(d) {
-                console.log(d.values);
                 return d.values;
             });
 
@@ -225,10 +233,11 @@ Genesis.prototype = {
                     .style("opacity", 0);
             });
 
-        rectangles
-            .exit()
-            .style("height", "0")
-            .remove();
+        rectangles = years
+            .selectAll(".word")
+            .data(function(d) {
+                return d.values;
+            });
 
         years.transition()
             .delay(function(d, i) {
@@ -238,6 +247,10 @@ Genesis.prototype = {
             .attr("transform", function(d) {
                 return "translate(" + parent.scale.x(d.key) + ", 1) scale(1,1)";
             });
+
+        rectangles
+            .exit()
+            .remove();
     },
     shuffle: function(o) {
         for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
@@ -283,7 +296,7 @@ Genesis.prototype = {
     },
     filter: function(text) {
         var filtered = this.defaults.data;
-
+console.log(text);
         filtered.forEach(function(d) {
             d.values = d.values.filter(function(e) {
                 var re = new RegExp(text);
@@ -294,7 +307,10 @@ Genesis.prototype = {
             });
         });
 
-        this.data = filtered;
+        console.log(filtered);
+
+        this.data = this.indexSort(filtered);
+        this.setup();
         this.buildChart();
     }
 };
@@ -310,6 +326,7 @@ var delay = (function() {
 
 $(function() {
     //["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"]
+    //["#DF320F", "#811A68", "#FF6B35", "#F5EFED", "#F05AC0", "#676666", "#DAD7CD", "#F3E61E", "#26547C", "#ED217C", "#7B287D", "#07A0C3"]
     genesis.colours = ["#676666", "#F3E61E", "#ED217C", "#DAD7CD", "#07A0C3", "#811A68", "#DF320F", "#FF6B35", "#F05AC0", "#26547C", "#7B287D", "#F5EFED"];
     genesis.colours = genesis.shuffle(genesis.colours);
     genesis.legend = '#legend';
