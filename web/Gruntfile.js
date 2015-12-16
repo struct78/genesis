@@ -66,7 +66,12 @@ module.exports = function(grunt) {
         banner: '<%= banner %>' // Add banner to the JS files
       },
       dist: {
-        src: [ '<%= settings.srcPath%>/js/vendor/jquery-1.11.2.min.js', '<%= settings.srcPath%>/**/*.js', '!<%=settings.srcPath%>/js/vendor/modernizr-2.8.3.min.js'], // Source files, ignore modernizer and HTML shiv as they need to be loaded separately
+        src: [ 
+          '<%= settings.srcPath%>/js/vendor/jquery-1.11.2.min.js', 
+          '<%= settings.srcPath%>/js/vendor/d3.min.js', 
+          '<%= settings.srcPath%>/js/vendor/d3-tip.js', 
+          '<%= settings.srcPath%>/js/word-genesis.js'
+        ], // Source files, ignore modernizer and HTML shiv as they need to be loaded separately
         dest: '<%= settings.buildPath%>/js/<%= pkg.name %>.min.js' // Build file
       }
     },
