@@ -1,4 +1,13 @@
+var GenesisEvent = {
+    DATA: 'data',
+    RENDER_START: 'renderstart',
+    RENDER_END: 'renderend',
+    RESIZE: 'resize',
+    FILTER: 'filter'
+};
+
 function Genesis(container) {
+    this.events = [];
     this.container = container;
     this.chart = {};
     this.csv = {};
@@ -49,7 +58,10 @@ Genesis.prototype = {
         this.height = $(this.container).height() - this.margin.top - this.margin.bottom;
         this.legend = d3.select(this.legend);
         this.colour = d3.scale.ordinal().range(this.colours);
-        this.tooltip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d; });
+        this.tooltip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+            return d;
+        });
+        this.tooltip.offset([-13, 0]);
         this.svg = this.chart.append("svg")
             .attr("width", this.width + this.margin.left + this.margin.right)
             .attr("height", this.height + this.margin.top + this.margin.bottom)
@@ -58,12 +70,28 @@ Genesis.prototype = {
         this.svg.call(this.tooltip);
         this.load();
     },
+    on: function(e, fn) {
+        this.events.push({
+            event: e, 
+            callback: fn
+        });
+    },
+    triggerEvent: function(e) {
+        console.log("EVENT: " + e);
+        this.events.forEach(function(i) {
+            if (i.event===e) {
+                console.log("TRIGGERING EVENT: " + i.event);
+                i.callback();
+            }
+        });
+    },
     load: function() {
-        var parent = this;
         d3.csv(this.csv, function(error, data) {
             if (error) {
                 console.log("Error");
             } else {
+                this.triggerEvent(GenesisEvent.DATA);
+
                 // Temporary
                 data = data.filter(function(d) {
                     //return d.year > 1950; 
@@ -73,36 +101,29 @@ Genesis.prototype = {
                 });
                 console.log("Loaded " + data.length + " entries");
 
-                data = data.sort(function(a, b) {
-                    // Sort by Word Type, then Word
-                    ///return d3.ascending(a.year, b.year);
-                    //return d3.ascending(parent.colour(a), parent.colour(b));
-                });
-
                 var nest = d3.nest()
                     .key(function(d) {
                         return d.year;
                     })
                     .entries(data);
 
-                nest = parent.indexSort(nest);
-                parent.data = parent.defaults.data = nest;
-                parent.createAxes();
-                parent.buildChart();
+                nest = this.indexSort(nest);
+                this.data = this.defaults.data = nest;
+                this.createAxes();
+                this.buildChart();
             }
-        });
+        }.bind(this));
     },
     indexSort: function(nest) {
-        nest.forEach(function(d,i) {
-            d.values.forEach(function(a,b) {
-                a.index = +b+1;
+        nest.forEach(function(d, i) {
+            d.values.forEach(function(a, b) {
+                a.index = +b + 1;
                 a.obsolescence = +a.obsolescence;
             });
 
             d.values.sort(function(a, b) {
                 // Sort by Word Type, then Word
                 return d3.ascending(a.word_type, b.word_type);
-                //return d3.ascending(parent.colour(a), parent.colour(b));
             });
         });
 
@@ -118,7 +139,9 @@ Genesis.prototype = {
     },
     createExtents: function() {
         this.extents.x = d3.extent(this.data, this.values.x);
-        this.extents.y = [0, d3.max(this.data, function(d) { return d.values.length; })];
+        this.extents.y = [0, d3.max(this.data, function(d) {
+            return d.values.length;
+        })];
     },
     createScale: function() {
         this.scale.x = d3.scale.linear().domain(this.extents.x).range([0, this.width]);
@@ -130,14 +153,13 @@ Genesis.prototype = {
         }
     },
     createMap: function() {
-        var parent = this;
-
         this.map.x = function(d) {
-            return parent.scale.x(parent.values.x(d));
-        };
+            return this.scale.x(this.values.x(d));
+        }.bind(this);
+
         this.map.y = function(d) {
-            return parent.scale.y(parent.values.y(d));
-        };
+            return this.scale.y(this.values.y(d));
+        }.bind(this);
     },
     setup: function() {
         this.createValues();
@@ -163,12 +185,12 @@ Genesis.prototype = {
             .attr("transform", "rotate(-90)");
     },
     buildChart: function() {
+        this.triggerEvent(GenesisEvent.RENDER_START);
+
         x = d3.scale.ordinal().domain(d3.range(this.extents.x[0], this.extents.x[1])).rangeBands([0, this.width], 0.15);
         y = d3.scale.ordinal().domain(d3.range(0, this.extents.y[1])).rangeBands([0, this.height], 0.15);
 
-        var parent = this;
-
-        this.svg.selectAll("*").remove();
+        //this.svg.selectAll("*").remove();
 
         var years = this.svg
             .selectAll(".year")
@@ -179,8 +201,8 @@ Genesis.prototype = {
             .append("g")
             .attr("class", "year")
             .attr("transform", function(d) {
-                return "translate(" + parent.scale.x(d.key) + ", 1) scale(1,0)";
-            })
+                return "translate(" + this.scale.x(d.key) + ", 1) scale(1,0)";
+            }.bind(this))
             .attr("x", this.map.x)
             .attr("y", 1)
             .selectAll(".word")
@@ -194,68 +216,36 @@ Genesis.prototype = {
             .attr("class", "word")
             .style("fill", function(d) {
                 // Change colour to nouns/verbs/adverbs/adjectives/etc
-                return parent.colour(d.word_type);
-            })
+                return this.colour(d.word_type);
+            }.bind(this))
             .attr("x", 0)
-            .attr("y", parent.map.y)
+            .attr("y", this.map.y.bind(this))
             .attr("transform", function(d) {
                 return "translate(0,0)"; //" + y.rangeBand() * 1.8 + "
             })
             .attr("width", x.rangeBand())
             .attr("height", y.rangeBand())
-            /*
-            .on("mouseover", function(d) {
-                //d3.select(this).transition().duration(900).ease('elastic').attr('r', 10);
-                parent.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", 0.95);
-
-                var table =
-                    "<table class=\"tooltip-table\"><tr><td>Word</td>" +
-                    "<td><strong>" + d.parent + "</strong></td></tr>";
-
-                if (d.word != d.parent) {
-                    table += "<tr><td>Variation</td>" +
-                        "<td><strong>" + d.word + "</strong></td></tr>";
-                }
-
-                table += "<tr><td>Year</td>" +
-                    "<td><strong>" + d.year + "</strong></td></tr>" +
-                    "<tr><td>Word Type</td>" +
-                    "<td><strong>" + d.word_type + "</strong></td></tr>" +
-                    "</table>";
-
-                parent.tooltip.html(table)
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 130) + "px")
-                    .style("background-color", parent.colour(d.word_type));
-            })
-            .on("mouseout", function(d) {
-                //d3.select(this).transition().duration(500).ease('elastic').attr('r', 5);
-                parent.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", 0);
-            });*/
             .on('mouseover', function(d) {
-                var table =
+                var caption =
+                    "<h4>" + d.year + "</h4>" +
                     "<table><tr><td>Word</td>" +
-                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.parent + "</strong></td></tr>";
+                    "<td><strong style=\"color:" + this.colour(d.word_type) + "\">" + d.parent + "</strong></td></tr>";
 
                 if (d.word != d.parent) {
-                    table += "<tr><td>Variation</td>" +
-                        "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.word + "</strong></td></tr>";
+                    caption += "<tr><td>Variation</td>" +
+                        "<td><strong style=\"color:" + this.colour(d.word_type) + "\">" + d.word + "</strong></td></tr>";
                 }
 
-                table += "<tr><td>Year</td>" +
-                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.year + "</strong></td></tr>" +
+                caption += "<tr><td>Year</td>" +
+                    "<td><strong style=\"color:" + this.colour(d.word_type) + "\">" + d.year + "</strong></td></tr>" +
                     "<tr><td>Type</td>" +
-                    "<td><strong style=\"color:" + parent.colour(d.word_type) + "\">" + d.word_type + "</strong></td></tr>" +
+                    "<td><strong style=\"color:" + this.colour(d.word_type) + "\">" + d.word_type + "</strong></td></tr>" +
                     "</table>";
 
 
-                parent.tooltip.html(table);
-                parent.tooltip.show(d.word);
-            })
+                this.tooltip.html(caption);
+                this.tooltip.show(d.word);
+            }.bind(this))
             .on('mouseout', this.tooltip.hide);
 
         rectangles = years
@@ -264,18 +254,39 @@ Genesis.prototype = {
                 return d.values;
             });
 
+
         years.transition()
             .delay(function(d, i) {
                 return i * 10;
             })
-            .duration(this.transitionTime) 
+            .duration(this.transitionTime)
             .attr("transform", function(d) {
-                return "translate(" + parent.scale.x(d.key) + ", 1) scale(1,1)";
-            });
+                return "translate(" + this.scale.x(d.key) + ", 1) scale(1,1)";
+            }.bind(this)).call(this.endall, function() {
+                this.triggerEvent(GenesisEvent.RENDER_END);
+            }.bind(this));
+
+            /*
+            .each("end", );*/
 
         rectangles
             .exit()
             .remove();
+    },
+    endall: function(transition, callback) {
+        if (transition.size()===0) {
+            callback();
+        }
+
+        var n = 0;
+        transition
+            .each(function() { ++n; })
+            .each("end", function(d, i) { 
+                if (!--n) {
+                    callback.apply(this, arguments);
+                }
+            });
+
     },
     shuffle: function(o) {
         for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
@@ -321,7 +332,6 @@ Genesis.prototype = {
     },
     filter: function(text) {
         var filtered = this.defaults.data;
-console.log(text);
         filtered.forEach(function(d) {
             d.values = d.values.filter(function(e) {
                 var re = new RegExp(text);
@@ -343,8 +353,8 @@ console.log(text);
 var genesis = new Genesis('#genesis');
 var delay = (function() {
     var timer = 0;
-    return function(callback, ms){
-        clearTimeout (timer);
+    return function(callback, ms) {
+        clearTimeout(timer);
         timer = setTimeout(callback, ms);
     };
 })();
@@ -352,8 +362,9 @@ var delay = (function() {
 $(function() {
     //["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"]
     //["#DF320F", "#811A68", "#FF6B35", "#F5EFED", "#F05AC0", "#676666", "#DAD7CD", "#F3E61E", "#26547C", "#ED217C", "#7B287D", "#07A0C3"]
-    genesis.colours = ["#676666", "#F3E61E", "#ED217C", "#DAD7CD", "#07A0C3", "#811A68", "#DF320F", "#FF6B35", "#F05AC0", "#26547C", "#7B287D", "#F5EFED"];
-    genesis.colours = genesis.shuffle(genesis.colours);
+    //["#F05AC0", "#07A0C3", "#F3E61E", "#DAD7CD", "#DF320F", "#ED217C", "#7B287D", "#FF6B35", "#676666", "#F5EFED", "#26547C", "#811A68"]
+    genesis.colours = ["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"];
+    //genesis.colours = genesis.shuffle(genesis.colours);
     genesis.legend = '#legend';
     genesis.margin = {
         top: 70,
@@ -364,6 +375,10 @@ $(function() {
     genesis.strokeWidth = 1;
     genesis.csv = 'data/words.csv';
     genesis.transitionTime = 1500;
+    genesis.on('renderstart', function() {
+        $('.loader').fadeOut(2000);
+    });
+
     genesis.init();
 
     $('#search').on('keyup', function() {
