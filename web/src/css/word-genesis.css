@@ -425,19 +425,60 @@ p {
   text-align: center;
   font-size: 0.8em; }
 
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -25px;
+  margin-top: -25px;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  font-size: 10px; }
+  .loader div {
+    background-color: #333;
+    height: 100%;
+    width: 6px;
+    display: inline-block;
+    -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+    animation: sk-stretchdelay 1.2s infinite ease-in-out; }
+  .loader .rect2 {
+    -webkit-animation-delay: -1.1s;
+    animation-delay: -1.1s; }
+  .loader .rect3 {
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s; }
+  .loader .rect4 {
+    -webkit-animation-delay: -0.9s;
+    animation-delay: -0.9s; }
+  .loader .rect5 {
+    -webkit-animation-delay: -0.8s;
+    animation-delay: -0.8s; }
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% {
+    -webkit-transform: scaleY(0.4); }
+  20% {
+    -webkit-transform: scaleY(1); } }
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4); }
+  20% {
+    transform: scaleY(1);
+    -webkit-transform: scaleY(1); } }
 header {
   margin: 0;
   position: fixed;
-  height: 3em;
-  background: #232121;
   width: 100%;
   top: 0;
-  padding: 0; }
+  padding: 2em 0; }
   header nav {
     display: block;
     position: absolute;
     right: 0;
-    top: 0; }
+    top: 0;
+    padding: 2em 0; }
     header nav ul {
       display: inline; }
       header nav ul li {
@@ -471,8 +512,8 @@ header {
 
 #genesis {
   display: block;
-  width: 2000px;
-  height: 800px;
+  width: 3000px;
+  height: 600px;
   margin: 5em 0 0 0; }
 
 #genesis {
@@ -552,9 +593,28 @@ header {
     margin: -4px 0 0 -1px;
     top: 50%;
     left: 100%; }
+  .d3-tip table td {
+    white-space: nowrap;
+    padding: 0.25em; }
   .d3-tip table td:nth-child(1) {
     padding-right: 1em;
     white-space: nowrap; }
+  .d3-tip h4 {
+    margin: 0 0 0.25em 0; }
+
+footer {
+  margin: 0;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  padding: 2em 0; }
+  footer form {
+    margin: 0 2em; }
+    footer form label {
+      font-family: Geneva, Arial, sans-serif;
+      font-size: 0.8em;
+      color: #BFB8AD;
+      margin-right: 1em; }
 
 /* Breakpoints */
 /*
