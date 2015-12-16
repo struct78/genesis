@@ -19,13 +19,13 @@ footer {
     left: 50%;
     top: 50%;
     margin-left: -25px;
-    margin-top: -25px;
+    margin-top: -20px;
     width: 50px;
     height: 40px;
-    text-align: center;
+    text-align: left;
     font-size: 10px;
     div {
-        background-color: #333;
+        background-color: $progress-bar;
         height: 100%;
         width: 6px;
         display: inline-block;
@@ -47,6 +47,22 @@ footer {
     .rect5 {
         -webkit-animation-delay: -0.8s;
         animation-delay: -0.8s;
+    }
+    .progress-container {
+        width: 41px;
+        -webkit-animation: none;
+        animation: none;
+        border: 1px solid $progress-bar;
+        height: 6px;
+        background: none;
+        .progress {
+            float: left;
+            display: block;
+            height: 6px;
+            -webkit-animation: none;
+            animation: none;
+            width: 1px;
+        }
     }
 }
 
