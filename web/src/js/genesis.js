@@ -1,11 +1,31 @@
+// Console fallback for older browsers
+if (typeof console === "undefined") {
+    window.console = {};
+    window.console.log = function(msg) {
+        this.message = msg;
+    };
+}
+
+// Event Types
 var GenesisEvent = {
     DATA: 'data',
+    DATA_PROGRESS: 'dataprogress',
     RENDER_START: 'renderstart',
     RENDER_END: 'renderend',
     RESIZE: 'resize',
     FILTER: 'filter'
 };
 
+// Delay function for KEYUP events
+var delay = (function() {
+    var timer = 0;
+    return function(callback, ms) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, ms);
+    };
+})();
+
+// Genesis constructor
 function Genesis(container) {
     this.events = [];
     this.container = container;
@@ -76,30 +96,30 @@ Genesis.prototype = {
             callback: fn
         });
     },
-    triggerEvent: function(e) {
-        console.log("EVENT: " + e);
+    triggerEvent: function(e, d) {
         this.events.forEach(function(i) {
             if (i.event === e) {
-                console.log("TRIGGERING EVENT: " + i.event);
-                i.callback();
+                console.log("EVENT: " + i.event);
+                i.callback(d);
             }
         });
     },
     load: function() {
         d3.csv(this.csv, function(error, data) {
             if (error) {
-                console.log("Error");
+                console.log("Error loading " + this.csv);
+                console.log(error);
             } else {
                 this.triggerEvent(GenesisEvent.DATA);
 
-                // Temporary
+                console.log(data.length + " loaded entries");
+
+                // Filter out any entry before 1500
                 data = data.filter(function(d) {
-                    //return d.year > 1950; 
-                    //var re = new RegExp('q');
-                    //return d.year > 1500 && re.exec(d.word);
                     return d.year > 1500;
                 });
-                console.log("Loaded " + data.length + " entries");
+
+                console.log(data.length + " filtered entries");
 
                 var nest = d3.nest()
                     .key(function(d) {
@@ -112,6 +132,10 @@ Genesis.prototype = {
                 this.createAxes();
                 this.buildChart();
             }
+        }.bind(this)).on("progress", function(e) {
+            e.onprogress = function(e) {
+                this.triggerEvent(GenesisEvent.DATA_PROGRESS, e);
+            }.bind(this);
         }.bind(this));
     },
     indexSort: function(nest) {
@@ -284,10 +308,6 @@ Genesis.prototype = {
             });
 
     },
-    shuffle: function(o) {
-        for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-        return o;
-    },
     resize: function(w) {
         /*
         var parent = this;
@@ -346,20 +366,13 @@ Genesis.prototype = {
 };
 
 var genesis = new Genesis('#genesis');
-var delay = (function() {
-    var timer = 0;
-    return function(callback, ms) {
-        clearTimeout(timer);
-        timer = setTimeout(callback, ms);
-    };
-})();
 
 $(function() {
     //["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"]
     //["#DF320F", "#811A68", "#FF6B35", "#F5EFED", "#F05AC0", "#676666", "#DAD7CD", "#F3E61E", "#26547C", "#ED217C", "#7B287D", "#07A0C3"]
     //["#F05AC0", "#07A0C3", "#F3E61E", "#DAD7CD", "#DF320F", "#ED217C", "#7B287D", "#FF6B35", "#676666", "#F5EFED", "#26547C", "#811A68"]
     genesis.colours = ["#07A0C3", "#26547C", "#F5EFED", "#FF6B35", "#F3E61E", "#DF320F", "#811A68", "#F05AC0", "#DAD7CD", "#ED217C", "#676666", "#7B287D"];
-    //genesis.colours = genesis.shuffle(genesis.colours);
+    genesis.colours = d3.shuffle(genesis.colours);
     genesis.legend = '#legend';
     genesis.margin = {
         top: 70,
@@ -373,6 +386,11 @@ $(function() {
     genesis.delayTime = 10;
     genesis.on('renderstart', function() {
         $('.loader').fadeOut(2000);
+    });
+    genesis.on('dataprogress', function(e) {
+        $('.loader .progress').css({
+            width: 100 * (e.loaded / e.total) + '%'
+        });
     });
 
     genesis.init();
