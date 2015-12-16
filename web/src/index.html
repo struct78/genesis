@@ -47,9 +47,7 @@
         <header>
             <h1>Word Genesis</h1>
             <nav>
-                <form>
-                    <input type="text" id="search"/>
-                </form>
+
                 <!--
                 <ul>
                     <li><a href="#widescreen">Widescreen</a></li>
@@ -101,12 +99,24 @@
 
         <!-- Main Content Area -->
         <main role="main">
+            <div class="loader">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
             <div id="legend"></div>
             <div id="genesis"></div>
         </main>
 
         <!-- Footer -->
-        <footer></footer>
+        <footer>
+            <form>
+                <label for="search">Filter</label>
+                <input type="text" id="search"/>
+            </form>
+        </footer>
 
 <!-- build:remove:dist -->
         <script src="js/vendor/jquery-1.11.2.min.js"></script>
