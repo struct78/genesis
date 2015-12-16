@@ -18,6 +18,7 @@ function Genesis(container) {
     this.defaults = {
         data: {}
     };
+    this.delayTime = 10;
     this.transitionTime = 1000;
     this.nice = false;
     this.extents = {
@@ -48,7 +49,6 @@ function Genesis(container) {
         bottom: 0,
         right: 0
     };
-    this.strokeWidth = 1;
 }
 
 Genesis.prototype = {
@@ -72,14 +72,14 @@ Genesis.prototype = {
     },
     on: function(e, fn) {
         this.events.push({
-            event: e, 
+            event: e,
             callback: fn
         });
     },
     triggerEvent: function(e) {
         console.log("EVENT: " + e);
         this.events.forEach(function(i) {
-            if (i.event===e) {
+            if (i.event === e) {
                 console.log("TRIGGERING EVENT: " + i.event);
                 i.callback();
             }
@@ -257,8 +257,8 @@ Genesis.prototype = {
 
         years.transition()
             .delay(function(d, i) {
-                return i * 10;
-            })
+                return i * this.delayTime;
+            }.bind(this))
             .duration(this.transitionTime)
             .attr("transform", function(d) {
                 return "translate(" + this.scale.x(d.key) + ", 1) scale(1,1)";
@@ -266,22 +266,18 @@ Genesis.prototype = {
                 this.triggerEvent(GenesisEvent.RENDER_END);
             }.bind(this));
 
-            /*
-            .each("end", );*/
-
-        rectangles
-            .exit()
-            .remove();
     },
     endall: function(transition, callback) {
-        if (transition.size()===0) {
+        if (transition.size() === 0) {
             callback();
         }
 
         var n = 0;
         transition
-            .each(function() { ++n; })
-            .each("end", function(d, i) { 
+            .each(function() {
+                ++n;
+            })
+            .each("end", function(d, i) {
                 if (!--n) {
                     callback.apply(this, arguments);
                 }
@@ -331,10 +327,10 @@ Genesis.prototype = {
     */
     },
     filter: function(text) {
-        var filtered = this.defaults.data;
+        var filtered = this.defaults.data.slice();
         filtered.forEach(function(d) {
             d.values = d.values.filter(function(e) {
-                var re = new RegExp(text);
+                var re = new RegExp("^" + text, "gi");
                 if (re.exec(e.word)) {
                     return true;
                 }
@@ -342,8 +338,7 @@ Genesis.prototype = {
             });
         });
 
-        console.log(filtered);
-
+        this.svg.selectAll(".year").remove();
         this.data = this.indexSort(filtered);
         this.setup();
         this.buildChart();
@@ -374,7 +369,8 @@ $(function() {
     };
     genesis.strokeWidth = 1;
     genesis.csv = 'data/words.csv';
-    genesis.transitionTime = 1500;
+    genesis.transitionTime = 100;
+    genesis.delayTime = 10;
     genesis.on('renderstart', function() {
         $('.loader').fadeOut(2000);
     });

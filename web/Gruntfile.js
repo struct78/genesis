@@ -70,7 +70,7 @@ module.exports = function(grunt) {
           '<%= settings.srcPath%>/js/vendor/jquery-1.11.2.min.js', 
           '<%= settings.srcPath%>/js/vendor/d3.min.js', 
           '<%= settings.srcPath%>/js/vendor/d3-tip.js', 
-          '<%= settings.srcPath%>/js/word-genesis.js'
+          '<%= settings.srcPath%>/js/genesis.js'
         ], // Source files, ignore modernizer and HTML shiv as they need to be loaded separately
         dest: '<%= settings.buildPath%>/js/<%= pkg.name %>.min.js' // Build file
       }
