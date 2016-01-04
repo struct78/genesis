@@ -11,13 +11,6 @@ from collections import Counter, defaultdict
 from lxml import etree
 from multiprocessing import Process, Pool
 
-'''
-
-TODO
-	- Flag archaic/oboslete words using the <sl> and <ssl> elements of each definition
-	- If all elements have archaic/obsolete then flag, otherwise they ight have a definitiont hat is in common use
-'''
-
 time_start = timeit.default_timer()
 
 alpha_numeric = ['1','2','3','4','5','6','7','8','9','0','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -29,7 +22,8 @@ date_formats = (
 	{'exp':r'^(\d{1,4})$','rep':r'\g<1>', 'name':'XXXX', 'type':'1'},
 	{'exp':r'^(\d{1,2})(th\scentury)$',r'rep':r'\g<1>00', 'name':'XXth Century', 'type':'2'},
 	{'exp':r'^(circa\s)(\d{1,4})$','rep':r'\g<2>', 'name':'circa XXXX', 'type':'3'},
-	{'exp':r'^(before\s)(\d{1,2})(th\scentury)$','rep':r'\g<2>00', 'name':'before XXTH century', 'type':'4'})
+	{'exp':r'^(before\s)(\d{1,2})(th\scentury)$','rep':r'\g<2>00', 'name':'before XXTH century', 'type':'4'}
+)
 
 headers = ['id','word','parent','year','type','word_type','obsolescence']
 
@@ -91,7 +85,7 @@ def process_files(letter):
 										if (definition.find('sl').text=='obsolete'):
 											is_obsolete = 1
 
-									row = [id, full_word, parent, normalised_date, date_type, word_type, is_obsolete]
+									row = [id, full_word.encode("utf-8"), parent.encode("utf-8"), normalised_date, date_type, word_type, is_obsolete]
 									word_list.append(row)
 				except:
 					print "Failed on " + word
