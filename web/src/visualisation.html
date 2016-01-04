@@ -57,17 +57,59 @@
 <!-- /build -->
         <link rel="stylesheet" href="css/genesis.min.css" type="text/css"/>
     </head>
-    <body class="home">
-        <div id="index">
+    <body>
+        <div id="vis">
+            <!-- Header -->
+            <!-- 
+            TODO:
+            Events:
+                - Shakespeare (1564-1616)
+                - First dictionary (1604)
+                - Industrial revolution
+                - WW1, 2
+
+            Added Lightbox/info button
+            -->
             <header>
-                <h1>Genesis</h1>
+                <!--<h1>Genesis</h1>-->
+                <form>
+                    <label for="search">Filter</label>
+                    <input type="text" id="search"/>
+                </form>
             </header>
+
             <!-- Main Content Area -->
             <main role="main">
-                <p>The English language has evolved over thousands of years. Today, new words are being added to the dictionary every month.</p>
-                <p>This prompted the question: <strong>Is English evolving quicker today than at any other time in history?</strong></p>
-                <p><a href="visualisation.html" class="button">View the data</a></p>
+                <div class="loader">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                    <div class="progress-container"><div class="progress"></div></div>
+                </div>
+                <div id="legend"></div>
+                <div id="genesis"></div>
             </main>
+
+            <!-- Footer -->
+            <footer>
+                <p>Copyright &copy; David Johnson, 2016</p>
+                <ul>
+                    <li><a href="#about"><i class="fa fa-info"></i><span>About</span></a></li>
+                    <li><a href="https://github.com/struct78/genesis"><i class="fa fa-github" aria-visible="false"></i><span>Github</span></a></li>
+                    <li><a href="https://twitter.com/struct"><i class="fa fa-twitter" aria-visible="false"></i><span>Twitter</span></a></li>
+                </ul>
+            </footer>
         </div>
+
+<!-- build:remove:dist -->
+        <script src="js/vendor/jquery-1.11.2.min.js"></script>
+        <script src="js/vendor/d3.min.js"></script>
+        <script src="js/vendor/d3-tip.js"></script>
+        <script src="js/genesis.js"></script>
+<!-- /build -->
+
+        <script src="js/genesis.min.js" async></script>
     </body>
 </html>
