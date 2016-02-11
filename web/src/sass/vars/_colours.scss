@@ -1,13 +1,15 @@
 /* Background Colours */
 
-$bg: #232121/0.85;
-$header-bg: #232121;
+$bg: #171b1c;
+$header-footer-bg: #232121;
 $progress-bar: #444;
+$divider: #444;
 
 /* Type Colours */
 
 $heading-colour: #ED217C;
-$text-colour: #DAD7CD;
+$text-colour: #85847f*1.2;
+$text-colour-light: #FEFEFE;
 
 /* Graph Colours */
 
@@ -18,3 +20,6 @@ $axis-label-font-colour: #07A0C3;
 /* Link Colours */
 
 $link-colour: $heading-colour;
+$button-color: #05738C;
+$button-color: $heading-colour;
+$button-color-hover: #05738C/0.8;
